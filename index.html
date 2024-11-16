@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web OS</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #2c2c2c;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .desktop {
+            flex: 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            background: linear-gradient(45deg, #1e1e1e, #353535);
+            padding: 10px;
+            position: relative;
+            background-image: url("https://cache.desktopnexus.com/thumbseg/1723/1723075-bigthumbnail.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .icon-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .icon {
+            text-align: center;
+            cursor: pointer;
+            width: 80px;
+            transition: transform 0.3s ease;
+        }
+
+        .icon img {
+            width: 64px;
+            height: 64px;
+        }
+
+        .icon span {
+            display: block;
+            margin-top: 5px;
+            font-size: 14px;
+            color: white;
+        }
+
+        .icon:hover {
+            transform: scale(1.2);
+        }
+
+        .icon:hover span {
+            color: white;
+        }
+
+        .taskbar {
+            position: relative;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: #1f1f1f;
+            display: flex;
+            align-items: center;
+            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.5);
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .taskbar button {
+            margin: 0 10px;
+            background: #2a2a2a;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .taskbar button:hover {
+            background: #444;
+        }
+
+        .taskbar .start-menu {
+            flex-grow: 1;
+        }
+
+        .taskbar .clock {
+            margin-right: 10px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        #camera-feed {
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .button-group {
+            margin-top: 10px;
+        }
+
+        .button-group button {
+            background: #444;
+            padding: 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .button-group button:hover {
+            background: #666;
+        }
+
+        #snapshot-canvas {
+            display: none;
+        }
+
+        .snapshot-image {
+            display: none;
+            max-width: 100%;
+            max-height: 400px;
+            margin-top: 20px;
+        }
+
+        .voice-recording-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .voice-recording-container button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .voice-recording-container button:hover {
+            background-color: #666;
+        }
+
+        .audio-player {
+            margin-top: 20px;
+        }
+        .notepad {
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 80%;
+            height: 80%;
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .notepad textarea {
+            width: 100%;
+            height: 80%;
+            margin-top: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .notepad button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            background: #444;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .notepad button:hover {
+            background: #666;
+        }
+        /* Basic modal styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex; /* Show modal when active */
+}
+
+        
+/* Modal styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex; /* Show modal when active */
+}
+
+/* Textarea (Notepad Content) */
+#notepad-content {
+    width: 60%;
+    height: 60%;
+    font-size: 16px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Buttons */
+#save-notepad, #close-notepad {
+    margin-top: 15px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    margin-right: 10px;
+}
+
+#save-notepad {
+    background-color: #28a745;
+}
+
+#close-notepad {
+    background-color: #dc3545;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="desktop">
+        <div class="icon-container">
+            <div class="icon" id="camera-icon">
+                <img src="https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Camera-512.png" alt="Camera">
+                <span>Camera</span>
+            </div>
+            <div class="icon" id="voice-recorder-icon">
+                <img src="https://i.pinimg.com/236x/b0/7e/3e/b07e3ecb307927191bd0d05732a2c260.jpg" alt="Voice Recorder">
+                <span>Voice Recorder</span>
+            </div>
+            <div class="icon" id="chrome-icon">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/2048px-Google_Chrome_icon_%28February_2022%29.svg.png" alt="Chrome">
+                <span>Chrome</span>
+            </div>
+            <div class="icon">
+                <img src="self.jpeg" alt="About me">
+                <span>About me</span>
+            </div>
+            <div class="icon" id="notepad-icon">
+                <img src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/notepad-512.png" alt="Notepad">
+                <span>Notepad</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <div class="start-menu">
+            <button>Start</button>
+            <button>Settings</button>
+            <button>Files</button>
+        </div>
+        <div class="clock">
+            <span id="time"></span>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="modal" id="camera-modal">
+        <div class="modal-content">
+            <video id="camera-feed" autoplay></video>
+            <div class="button-group">
+                <button id="capture-button">Capture</button>
+                <button id="download-button" style="display: none;">Download</button>
+                <button id="close-modal">Close</button>
+            </div>
+            <img id="snapshot-image" class="snapshot-image" alt="Captured Image">
+            <canvas id="snapshot-canvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Voice Recorder Modal -->
+    <div class="modal" id="voice-recorder-modal">
+        <div class="voice-recording-container">
+            <button id="start-recording">Start Recording</button>
+            <button id="stop-recording" disabled>Stop Recording</button>
+            <button id="download-recording" disabled>Download Recording</button>
+            <audio id="audio-player" class="audio-player" controls></audio>
+        </div>
+    </div>
+
+    <!-- Chrome Popup -->
+    <div class="modal" id="chrome-modal">
+        <div class="modal-content">
+            <iframe src="https://www.google.com" width="100%" height="400px"></iframe>
+            <button id="close-chrome-modal">Close</button>
+        </div>
+    </div>
+    <div id="notepad-modal" class="modal">
+        <textarea id="notepad-content" placeholder="Write your notes here..."></textarea>
+        <button id="save-notepad">Save</button>
+        <button id="close-notepad">Close</button>
+    </div>
+    <script>
+        const cameraIcon = document.getElementById('camera-icon');
+        const cameraModal = document.getElementById('camera-modal');
+        const closeModal = document.getElementById('close-modal');
+        const cameraFeed = document.getElementById('camera-feed');
+        const captureButton = document.getElementById('capture-button');
+        const downloadButton = document.getElementById('download-button');
+        const snapshotCanvas = document.getElementById('snapshot-canvas');
+        const snapshotImage = document.getElementById('snapshot-image');
+        const ctx = snapshotCanvas.getContext('2d');
+        
+        // Voice Recorder
+        const voiceRecorderIcon = document.getElementById('voice-recorder-icon');
+        const voiceRecorderModal = document.getElementById('voice-recorder-modal');
+        const startRecordingButton = document.getElementById('start-recording');
+        const stopRecordingButton = document.getElementById('stop-recording');
+        const downloadRecordingButton = document.getElementById('download-recording');
+        const audioPlayer = document.getElementById('audio-player');
+        let mediaRecorder;
+        let audioChunks = [];
+
+        // Chrome Popup
+        const chromeIcon = document.getElementById('chrome-icon');
+        const chromeModal = document.getElementById('chrome-modal');
+        const closeChromeModal = document.getElementById('close-chrome-modal');
+
+        // Camera Modal
+        let stream;
+        cameraIcon.addEventListener('click', async () => {
+            try {
+                cameraModal.classList.add('active');
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                cameraFeed.srcObject = stream;
+            } catch (err) {
+                alert('Error accessing camera: ' + err);
+            }
+        });
+
+        captureButton.addEventListener('click', () => {
+            snapshotCanvas.width = cameraFeed.videoWidth;
+            snapshotCanvas.height = cameraFeed.videoHeight;
+            ctx.drawImage(cameraFeed, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+            snapshotImage.src = snapshotCanvas.toDataURL('image/png');
+            snapshotImage.style.display = 'block';
+            downloadButton.style.display = 'inline-block';
+        });
+
+        downloadButton.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = snapshotCanvas.toDataURL('image/png');
+            link.download = 'snapshot.png';
+            link.click();
+        });
+
+        closeModal.addEventListener('click', () => {
+            stream.getTracks().forEach(track => track.stop());
+            cameraModal.classList.remove('active');
+        });
+
+        // Voice Recorder
+        voiceRecorderIcon.addEventListener('click', () => {
+            voiceRecorderModal.classList.add('active');
+        });
+
+        startRecordingButton.addEventListener('click', () => {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        audioPlayer.src = audioUrl;
+                        downloadRecordingButton.disabled = false;
+                    };
+                    mediaRecorder.start();
+                    startRecordingButton.disabled = true;
+                    stopRecordingButton.disabled = false;
+                })
+                .catch(err => alert('Error accessing microphone: ' + err));
+        });
+
+        stopRecordingButton.addEventListener('click', () => {
+            mediaRecorder.stop();
+            startRecordingButton.disabled = false;
+            stopRecordingButton.disabled = true;
+        });
+
+        downloadRecordingButton.addEventListener('click', () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(audioBlob);
+            link.download = 'recording.wav';
+            link.click();
+        });
+
+        // Display time on taskbar
+        setInterval(() => {
+            const time = new Date().toLocaleTimeString();
+            document.getElementById('time').textContent = time;
+        }, 1000);
+        captureButton.addEventListener('click', () => {
+            snapshotCanvas.width = cameraFeed.videoWidth;
+            snapshotCanvas.height = cameraFeed.videoHeight;
+            ctx.drawImage(cameraFeed, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+            snapshotImage.src = snapshotCanvas.toDataURL('image/png');
+            cameraFeed.style.display = 'none';
+            snapshotImage.style.display = 'block';
+            captureButton.style.display = 'none';
+            downloadButton.style.display = 'inline-block';
+            document.getElementById('capture-new').style.display = 'inline-block';
+        });
+
+        // Capture New Button
+        const captureNewButton = document.createElement('button');
+        captureNewButton.id = 'capture-new';
+        captureNewButton.textContent = 'Capture New';
+        captureNewButton.style.display = 'none';
+        document.querySelector('.button-group').appendChild(captureNewButton);
+
+        captureNewButton.addEventListener('click', async () => {
+            snapshotImage.style.display = 'none';
+            cameraFeed.style.display = 'block';
+            captureButton.style.display = 'inline-block';
+            downloadButton.style.display = 'none';
+            captureNewButton.style.display = 'none';
+        });
+
+        // Close Button for Voice Recorder
+        const closeVoiceRecorderButton = document.createElement('button');
+        closeVoiceRecorderButton.textContent = 'Close';
+        closeVoiceRecorderButton.addEventListener('click', () => {
+            voiceRecorderModal.classList.remove('active');
+        });
+        document.querySelector('.voice-recording-container').appendChild(closeVoiceRecorderButton);
+
+        // Chrome Fix
+        chromeIcon.addEventListener('click', () => {
+            window.open('https://www.google.com', '_blank');
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const notepadIcon = document.getElementById('notepad-icon');
+            const notepadModal = document.getElementById('notepad-modal');
+            const closeNotepadButton = document.getElementById('close-notepad');
+            const saveNotepadButton = document.getElementById('save-notepad');
+            const notepadContent = document.getElementById('notepad-content');
+        
+            // Show the modal when the notepad icon is clicked
+            notepadIcon.addEventListener('click', () => {
+                notepadModal.classList.add('active'); // Add 'active' class to show modal
+            });
+        
+            // Hide the modal when the close button is clicked
+            closeNotepadButton.addEventListener('click', () => {
+                notepadModal.classList.remove('active'); // Remove 'active' class to hide modal
+            });
+        
+            // Save content to localStorage
+            saveNotepadButton.addEventListener('click', () => {
+                const content = notepadContent.value;
+                localStorage.setItem('notepadContent', content); // Save content in localStorage
+                alert('Notepad content saved!');
+            });
+        
+            // Load saved content when the modal opens
+            window.addEventListener('load', () => {
+                const savedContent = localStorage.getItem('notepadContent');
+                if (savedContent) {
+                    notepadContent.value = savedContent; // Set saved content in the textarea
+                }
+            });
+        });
+        
+    </script>
+</body>
+</html>
